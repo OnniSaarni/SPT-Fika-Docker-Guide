@@ -7,11 +7,11 @@ Last updated: 30/05/24
 
 ## Table Of Contents
 
-[Installation](https://gist.github.com/OnniSaarni/a3f840cef63335212ae085a3c6c10d5c#installing-docker)
+[Installation](https://github.com/OnniSaarni/SPT-Fika-Docker-Guide?tab=readme-ov-file#installing-docker)
 
-[Updating The Server](https://gist.github.com/OnniSaarni/a3f840cef63335212ae085a3c6c10d5c#updating-to-newer-versions)
+[Updating The Server](https://github.com/OnniSaarni/SPT-Fika-Docker-Guide?tab=readme-ov-file#updating-to-newer-versions)
 
-[Other Possibly Helpful Info](https://gist.github.com/OnniSaarni/a3f840cef63335212ae085a3c6c10d5c#modding-and-other-possibly-helpful-info)
+[Other Possibly Helpful Info](https://github.com/OnniSaarni/SPT-Fika-Docker-Guide?tab=readme-ov-file#modding-and-other-possibly-helpful-info)
 
 ## Free VPS
 
