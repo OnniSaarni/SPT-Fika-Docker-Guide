@@ -7,11 +7,11 @@ Last updated: 30/05/24
 
 ## Table Of Contents
 
-[Installation](https://github.com/OnniSaarni/SPT-Fika-Docker-Guide?tab=readme-ov-file#installing-docker)
+[Installation](https://github.com/OnniSaarni/SPT-Fika-Docker-Guide#installing-docker)
 
-[Updating The Server](https://github.com/OnniSaarni/SPT-Fika-Docker-Guide?tab=readme-ov-file#updating-to-newer-versions)
+[Updating The Server](https://github.com/OnniSaarni/SPT-Fika-Docker-Guide#updating-to-newer-versions)
 
-[Other Possibly Helpful Info](https://github.com/OnniSaarni/SPT-Fika-Docker-Guide?tab=readme-ov-file#modding-and-other-possibly-helpful-info)
+[Other Possibly Helpful Info](https://github.com/OnniSaarni/SPT-Fika-Docker-Guide#modding-and-other-possibly-helpful-info)
 
 ## Free VPS
 
@@ -68,7 +68,7 @@ cd fika
 
 The file structure looks like this:
 
-![folder structure](https://gist.github.com/assets/165258881/14d3be93-b821-41b6-b637-238c1ceb47ad)
+![file structure](images/fileStructure.png)
 
 
 ## Creating the files
@@ -268,13 +268,13 @@ docker stop fika
 
 [How to find out your server directory path](https://gist.github.com/OnniSaarni/a3f840cef63335212ae085a3c6c10d5c#setting-up-the-docker-container)
 
-It is recommended to backup your profiles in your server/user/profiles folder. You can copy them to your home folder with this command (assuming you made an account earlier):
+It is recommended to backup your profiles in your server/user/profiles directory. You can copy them to your home directory with this command (assuming you made an account earlier):
 
 ```
 cp -r PATHTOYOURSERVERFILE/server/user/profiles /home/dockercontainers/profilesBackup
 ```
 
-The profile files will be copied over to your home folder. If you haven't made a separate account you should change the command.
+The profile files will be copied over to your home directory. If you haven't made a separate account you should change the command.
 
 Next we need to delete the container and the image. We can do that by running these commands:
 
