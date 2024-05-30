@@ -93,7 +93,7 @@ FROM ubuntu:latest AS builder
 ARG FIKA=HEAD^
 ARG FIKA_BRANCH=main
 ARG SPT=HEAD^
-ARG SPT_BRANCH=3.8.3
+ARG SPT_BRANCH=master
 ARG NODE=20.11.1
 
 RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
@@ -178,8 +178,8 @@ if [ -d "/opt/srv" ]; then
     echo "Starting the server to generate all the required files"
     cd /opt/server
     chown $(id -u):$(id -g) ./* -Rf
-    sed -i 's/127.0.0.1/0.0.0.0/g' /opt/server/Aki_Data/Server/configs/http.json
-    NODE_CHANNEL_FD= timeout --preserve-status 40s ./Aki.Server.exe </dev/null >/dev/null 2>&1 
+    sed -i 's/127.0.0.1/0.0.0.0/g' /opt/server/SPT_Data/Server/configs/http.json
+    NODE_CHANNEL_FD= timeout --preserve-status 40s ./SPT.Server.exe </dev/null >/dev/null 2>&1 
     echo "Follow the instructions to proceed!"
     exit 0
 fi
@@ -191,7 +191,7 @@ if [ -e "/opt/server/delete_me" ]; then
     exit 1
 fi
 
-cd /opt/server && ./Aki.Server.exe
+cd /opt/server && ./SPT.Server.exe
 
 echo "Exiting."
 exit 0
@@ -315,37 +315,6 @@ http.json should be pre configured for portforwarding in this setup.
 
 [You might also want to look into making automatic backups with cron.](https://unix.stackexchange.com/a/16954)
 It's not neccessary but it's a plus. I'm not going to go into it in depth but if someone wants they are free to make a simple guide for it.
-
-## Errors
-
-[If you're having this error and you have installed the realism mod, you have to do this fix:](https://github.com/space-commits/SPT-Realism-Mod-Server/pull/42)
-
-```
-[2024-05-03T03:21:21.203Z] error:     TypeError: Cannot read properties of undefined (reading 'replaceAll')
-[2024-05-03T03:21:21.204Z] error:     TypeError: Cannot read properties of undefined (reading 'replaceAll')
-[2024-05-03T03:21:21.204Z] error:     TypeError: Cannot read properties of undefined (reading 'replaceAll')
-    at HttpRouter.getResponse (/opt/server/user/mods/mpt-server/src/overrides/routers/HttpRouter.ts:29:41)
-    at AkiHttpListener.getResponse (/snapshot/src/servers/http/AkiHttpListener.ts:150:38)
-    at AkiHttpListener.handle (/snapshot/src/servers/http/AkiHttpListener.ts:39:39)
-    at HttpServer.handleRequest (/snapshot/src/servers/HttpServer.ts:103:26)
-    at Server.<anonymous> (/snapshot/src/servers/HttpServer.ts:45:18)
-    at Server.emit (node:events:518:28)
-    at parserOnIncoming (node:_http_server:1151:12)
-    at HTTPParser.parserOnHeadersComplete (node:_http_common:119:17)
-[2024-05-03T03:21:21.203Z] error:     TypeError: Cannot read properties of undefined (reading 'replaceAll')
-    at HttpRouter.getResponse (/opt/server/user/mods/mpt-server/src/overrides/routers/HttpRouter.ts:29:41)
-    at AkiHttpListener.getResponse (/snapshot/src/servers/http/AkiHttpListener.ts:150:38)
-    at AkiHttpListener.handle (/snapshot/src/servers/http/AkiHttpListener.ts:39:39)
-    at HttpServer.handleRequest (/snapshot/src/servers/HttpServer.ts:103:26)
-    at Server.<anonymous> (/snapshot/src/servers/HttpServer.ts:45:18)
-    at Server.emit (node:events:518:28)
-    at parserOnIncoming (node:_http_server:1151:12)
-    at HTTPParser.parserOnHeadersComplete (node:_http_common:119:17)
-```
-
-I was also having an error which was fixed by deleting all the files in the "cache" directory.
-
-A lot of the errors can be fixed by just searching the Fika Discord server for the error.
 
 ## Credits
 
