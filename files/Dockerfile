@@ -7,7 +7,7 @@ FROM ubuntu:latest AS builder
 ARG FIKA=HEAD^
 ARG FIKA_BRANCH=main
 ARG SPT=HEAD^
-ARG SPT_BRANCH=3.8.3
+ARG SPT_BRANCH=master
 ARG NODE=20.11.1
 
 RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
@@ -26,7 +26,7 @@ WORKDIR /opt/srv/project
 RUN git checkout $SPT
 RUN git-lfs pull
 
-## remove the encoding from aki - todo: find a better workaround
+## remove the encoding from spt - todo: find a better workaround
 RUN sed -i '/setEncoding/d' /opt/srv/project/src/Program.ts || true
 
 ## Install npm dependencies and run build
