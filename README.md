@@ -1,5 +1,5 @@
 # Setting up Fika SPT server with docker for Ubuntu/Debian/Raspberry Pi
-Last updated: 07/07/24
+Last updated: 26/07/24
 
 **Make sure your computer is 64-bit! Arm64 works too!**
 
@@ -149,6 +149,8 @@ CMD bash ./fcpy.sh
 Press **Ctrl + S** to save and after that press **Ctrl + X** to exit.
 
 You can change the Fika and SPT versions If SPT or FIKA gets updated. In the `Dockerfile` you can change `FIKA_BRANCH` and `SPT_BRANCH` args to the version you want. E.g. `ARG SPT_BRANCH=v3.8.1`.
+
+![#f03c15](https://placehold.co/15x15/f03c15/ff0000.png) **Warning!** ![#f03c15](https://placehold.co/15x15/f03c15/ff0000.png) There have been issues with the main and master branches being ahead of the actual versions in use. **Please double check the current versions of SPT and Fika!**
 
 
 And then we will create a new file called "fcpy.sh" in the fika directory. **THIS NAME IS CASE SENSITIVE**
