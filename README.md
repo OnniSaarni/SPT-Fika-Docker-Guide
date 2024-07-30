@@ -153,7 +153,7 @@ CMD bash ./fcpy.sh
 
 Press **Ctrl + S** to save and after that press **Ctrl + X** to exit.
 
-You can change the Fika and SPT versions If SPT or FIKA gets updated. In the `Dockerfile` you can change `FIKA_BRANCH` and `SPT_BRANCH` args to the version you want. E.g. `ARG SPT_BRANCH=v3.8.1`.
+You can change the Fika and SPT versions If SPT or FIKA gets updated. In the `Dockerfile` you can change `FIKA_TAG` and `SPT_TAG` args to the version you want. E.g. `ARG FIKA_TAG=v2.1.1` and `ARG SPT_TAG=3.8.3`.
 
 ![#f03c15](https://placehold.co/15x15/f03c15/ff0000.png) **Warning!** ![#f03c15](https://placehold.co/15x15/f03c15/ff0000.png) Make sure that selected tag versions are compatible. **Please double check the current versions of SPT and Fika!**
 
