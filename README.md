@@ -91,9 +91,9 @@ Inside this file we're going to write the following: [(These are from the Fika D
 
 FROM ubuntu:latest AS builder
 ARG FIKA=HEAD^
-ARG FIKA_BRANCH=main
+ARG FIKA_TAG=[Insert Tag Here]
 ARG SPT=HEAD^
-ARG SPT_BRANCH=master
+ARG SPT_TAG=[Insert Tag Here]
 ARG NODE=20.11.1
 
 RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
@@ -105,10 +105,12 @@ RUN apt update && apt install -yq git git-lfs curl
 RUN git clone https://github.com/nvm-sh/nvm.git $HOME/.nvm || true
 RUN \. $HOME/.nvm/nvm.sh && nvm install $NODE
 ## Clone the SPT repo or continue if it exist
-RUN git clone --branch $SPT_BRANCH https://dev.sp-tarkov.com/SPT/Server.git srv || true
+RUN git clone https://dev.sp-tarkov.com/SPT/Server.git srv || true
 
 ## Check out and git-lfs (specific commit --build-arg SPT=xxxx)
 WORKDIR /opt/srv/project
+
+RUN git checkout tags/$SPT_TAG
 RUN git checkout $SPT
 RUN git-lfs pull
 
@@ -122,9 +124,12 @@ RUN mv build/ /opt/server/
 WORKDIR /opt
 RUN rm -rf srv/
 ## Grab FIKA Server Mod or continue if it exist
-RUN git clone --branch $FIKA_BRANCH https://github.com/project-fika/Fika-Server.git ./server/user/mods/fika-server
-RUN \. $HOME/.nvm/nvm.sh && cd ./server/user/mods/fika-server && git checkout $FIKA && npm install
-RUN rm -rf ./server/user/mods/FIKA/.git
+RUN git clone https://github.com/project-fika/Fika-Server.git ./server/user/mods/fika-server
+WORKDIR ./server/user/mods/fika-server
+RUN git checkout tags/$FIKA_TAG
+RUN git checkout $FIKA
+RUN \. $HOME/.nvm/nvm.sh && npm install
+RUN rm -rf ../FIKA/.git
 
 FROM ubuntu:latest
 WORKDIR /opt/
@@ -150,7 +155,7 @@ Press **Ctrl + S** to save and after that press **Ctrl + X** to exit.
 
 You can change the Fika and SPT versions If SPT or FIKA gets updated. In the `Dockerfile` you can change `FIKA_BRANCH` and `SPT_BRANCH` args to the version you want. E.g. `ARG SPT_BRANCH=v3.8.1`.
 
-![#f03c15](https://placehold.co/15x15/f03c15/ff0000.png) **Warning!** ![#f03c15](https://placehold.co/15x15/f03c15/ff0000.png) There have been issues with the main and master branches being ahead of the actual versions in use. **Please double check the current versions of SPT and Fika!**
+![#f03c15](https://placehold.co/15x15/f03c15/ff0000.png) **Warning!** ![#f03c15](https://placehold.co/15x15/f03c15/ff0000.png) Make sure that selected tag versions are compatible. **Please double check the current versions of SPT and Fika!**
 
 
 And then we will create a new file called "fcpy.sh" in the fika directory. **THIS NAME IS CASE SENSITIVE**
@@ -180,8 +185,13 @@ if [ -d "/opt/srv" ]; then
     echo "Starting the server to generate all the required files"
     cd /opt/server
     chown $(id -u):$(id -g) ./* -Rf
-    sed -i 's/127.0.0.1/0.0.0.0/g' /opt/server/SPT_Data/Server/configs/http.json
-    NODE_CHANNEL_FD= timeout --preserve-status 40s ./SPT.Server.exe </dev/null >/dev/null 2>&1 
+    if [ -f /opt/server/SPT_Data/Server/configs/http.json ]; then
+    	sed -i 's/127.0.0.1/0.0.0.0/g' /opt/server/SPT_Data/Server/configs/http.json
+	NODE_CHANNEL_FD= timeout --preserve-status 40s ./SPT.Server.exe </dev/null >/dev/null 2>&1
+    else
+	sed -i 's/127.0.0.1/0.0.0.0/g' /opt/server/Aki_Data/Server/configs/http.json
+	NODE_CHANNEL_FD= timeout --preserve-status 40s ./Aki.Server.exe </dev/null >/dev/null 2>&1
+    fi
     echo "Follow the instructions to proceed!"
 fi
 
@@ -192,8 +202,13 @@ if [ -e "/opt/server/delete_me" ]; then
     exit 1
 fi
 
-cd /opt/server && ./SPT.Server.exe
+cd /opt/server
 
+if [ -f ./SPT.Server.exe ]; then
+   ./SPT.Server.exe
+else
+   ./Aki.Server.exe
+fi
 echo "Exiting."
 exit 0
 ```

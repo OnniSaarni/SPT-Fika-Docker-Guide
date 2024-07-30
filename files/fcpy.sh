@@ -14,8 +14,13 @@ if [ -d "/opt/srv" ]; then
     echo "Starting the server to generate all the required files"
     cd /opt/server
     chown $(id -u):$(id -g) ./* -Rf
-    sed -i 's/127.0.0.1/0.0.0.0/g' /opt/server/SPT_Data/Server/configs/http.json
-    NODE_CHANNEL_FD= timeout --preserve-status 40s ./SPT.Server.exe </dev/null >/dev/null 2>&1 
+    if [ -f /opt/server/SPT_Data/Server/configs/http.json ]; then
+    	sed -i 's/127.0.0.1/0.0.0.0/g' /opt/server/SPT_Data/Server/configs/http.json
+	NODE_CHANNEL_FD= timeout --preserve-status 40s ./SPT.Server.exe </dev/null >/dev/null 2>&1
+    else
+	sed -i 's/127.0.0.1/0.0.0.0/g' /opt/server/Aki_Data/Server/configs/http.json
+	NODE_CHANNEL_FD= timeout --preserve-status 40s ./Aki.Server.exe </dev/null >/dev/null 2>&1
+    fi
     echo "Follow the instructions to proceed!"
 fi
 
@@ -26,7 +31,12 @@ if [ -e "/opt/server/delete_me" ]; then
     exit 1
 fi
 
-cd /opt/server && ./SPT.Server.exe
+cd /opt/server
 
+if [ -f ./SPT.Server.exe ]; then
+   ./SPT.Server.exe
+else
+   ./Aki.Server.exe
+fi
 echo "Exiting."
 exit 0
