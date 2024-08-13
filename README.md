@@ -1,5 +1,5 @@
 # Setting up Fika SPT server with docker for Ubuntu/Debian/Raspberry Pi
-Last updated: 26/07/24
+Last updated: 13/08/24
 
 **Make sure your computer is 64-bit! Arm64 works too!**
 
@@ -12,6 +12,9 @@ Last updated: 26/07/24
 [Updating The Server](https://github.com/OnniSaarni/SPT-Fika-Docker-Guide#updating-to-newer-versions)
 
 [Other Possibly Helpful Info](https://github.com/OnniSaarni/SPT-Fika-Docker-Guide#modding-and-other-possibly-helpful-info)
+
+[Automatic Setup Script](https://github.com/OnniSaarni/SPT-Fika-Docker-Guide/tree/main/files/setupScript)
+(Only use if you've already done the setup once before.)
 
 ## Free VPS
 
