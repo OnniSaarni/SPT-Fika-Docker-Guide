@@ -1,5 +1,5 @@
 # Setting up Fika SPT server with docker for Ubuntu/Debian/Raspberry Pi
-Last updated: 24/08/24
+Last updated: 05/09/24
 
 **Make sure your computer is 64-bit! Arm64 works too!**
 
@@ -22,10 +22,71 @@ Last updated: 24/08/24
 
 [A good free VPS from Oracle. It offers 24gb ram, 4 cores and 200gb of storage. It's ARM but works with this setup.](https://www.oracle.com/cloud/free/)
 
+## Recommended tools
+SSH: [Putty](https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html)
+
+File Explorer: [WinSCP](https://winscp.net/eng/download.php)
+
+All-in-one recommendation: [VSCode](https://code.visualstudio.com/download) with the Remote Explorer extension installed.
+
+**DON"T LOOSE YOUR SSH KEY FILE!!!** Without this you won't be able to connect to your Oracle server - keep it somewhere **SAFE**
+
 ## Installing Docker
 
 First of all you need Docker. [You can download it by following this guide here.](https://docs.docker.com/engine/install/ubuntu/)
+
 This guide is for ubuntu but you can find guides for other operating systems/distributions on their website.
+
+Here is a summary of the install commands from the guide:
+
+Step 1: Update the Package Index and Install Prerequisites
+```
+sudo apt-get update
+sudo apt-get install \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    gnupg \
+    lsb-release
+```
+
+Step 2: Add Docker’s Official GPG Key
+```
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+```
+
+Step 3: Set Up the Stable Repository
+```
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] \
+https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | \
+sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+```
+
+Step 4: Update the Package Index Again
+```
+sudo apt-get update
+```
+
+Step 5: Install latest Docker Engine
+```
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+```
+
+Step 6: Enable and Start Docker
+```
+sudo systemctl enable docker
+```
+```
+sudo systemctl start docker
+```
+
+Step 5: Add user to the docker group & activate the changes
+```
+sudo usermod -aG docker $USER
+```
+```
+newgrp docker
+```
 
 You can verify your Docker installation by running `docker --version`
 
@@ -55,6 +116,7 @@ su - dockercontainers
 After you've got docker installed you can start by creating a new directory for your project and navigate to it in your terminal.
 
 I'm going to go ahead and create a new directory called "containers" and navigate to it.
+
 You can do this with:
 
 ```
@@ -62,7 +124,8 @@ mkdir containers
 cd containers
 ```
 
-Now we're going to create a new directories for our Fika Dockerfile and Fika SPT server and navigate to the Dockerfile directory.
+Now we're going to create new directories for our Fika Dockerfile and Fika SPT server and navigate to the Dockerfile directory.
+
 You can do this with:
 
 ```
@@ -75,10 +138,11 @@ The file structure looks like this:
 
 ![file structure](images/fileStructure.png)
 
-
 ## Creating the files
 
-Now we're going to create a new file called "Dockerfile" in the fika directory. **THIS NAME IS CASE SENSITIVE**
+Now we're going to create a new file called "Dockerfile" in the fika directory.
+
+**THIS NAME IS CASE SENSITIVE**
 
 You can do this with:
 
@@ -162,7 +226,6 @@ You can change the Fika and SPT versions If SPT or FIKA gets updated. In the `Do
 
 ![#f03c15](https://placehold.co/15x15/f03c15/ff0000.png) **Warning!** ![#f03c15](https://placehold.co/15x15/f03c15/ff0000.png) Make sure that selected tag versions are compatible. **Please double check the current versions of SPT and Fika!**
 
-
 And then we will create a new file called "fcpy.sh" in the fika directory. **THIS NAME IS CASE SENSITIVE**
 
 You can do this with:
@@ -244,15 +307,21 @@ Then by running `pwd` you can get the path to your server file. Copy this value 
 docker run --pull=never -v PATHTOYOURSERVERFILE:/opt/server -p 6969:6969 -p 6970:6970 -p 6971:6971 -p 6972:6972 -it --name fika --log-opt max-size=10m --log-opt max-file=3 fika
 ```
 
-
 ## Starting the container
+
+After the docker run command we are going to start the container:
 
 ```
 docker start fika
+```
+```
 docker update --restart unless-stopped fika
 ```
 
-After starting the container you can see the logs of it with `docker logs fika -f`
+After starting the container you can see the logs of it with:
+```
+docker logs fika -f
+```
 
 ## Helpful Docker commands
 
@@ -263,8 +332,6 @@ docker logs fika -f
 ```
 
 You can use **Ctrl + C** to exit the logs.
-
-
 
 To stop the container:
 
@@ -277,7 +344,6 @@ To restart the container:
 ```
 docker restart fika
 ```
-
 
 ## Updating to newer versions
 
@@ -301,21 +367,34 @@ Next we need to delete the container and the image. We can do that by running th
 
 ```
 docker rm fika
-docker rmi fika
+```
+```
+docker rmi FIKA
+```
+```
+docker image prune
 ```
 
-After that we need to rebuild the container:
+After that we need to rebuild the container from within the fika directory:
 
 ```
 docker build --no-cache --label FIKA -t fika .
 ```
 
 And then we can start it back up with: [REMEMBER TO CHANGE PATHTOYOURSERVERFILE](https://gist.github.com/OnniSaarni/a3f840cef63335212ae085a3c6c10d5c#setting-up-the-docker-container)
-
+```
+cd ..
+```
+```
+cd server
+```
 ```
 docker run --pull=never -v PATHTOYOURSERVERFILE:/opt/server -p 6969:6969 -p 6970:6970 -p 6971:6971 -p 6972:6972 -it --name fika --log-opt max-size=10m --log-opt max-file=3 fika
-
+```
+```
 docker start fika
+```
+```
 docker update --restart unless-stopped fika
 ```
 
@@ -332,13 +411,16 @@ You should also disable the firewall for the EscapeFromTarkov.exe and allow port
 
 To add more mods to the game you have to add them to the "users" directory in the server directory.
 
-http.json should be pre configured for portforwarding in this setup.
+http.json should be pre configured for port forwarding in this setup.
 
 [You might also want to look into making automatic backups with cron.](https://unix.stackexchange.com/a/16954)
-It's not neccessary but it's a plus. I'm not going to go into it in depth but if someone wants they are free to make a simple guide for it.
+
+It's not necessary but it's a plus. I'm not going to go into it in depth but if someone wants they are free to make a simple guide for it.
+
+[This is a maintained/modified fork of this guide with an included mod-pack, scripts for pre & post installation, automated restarts & daily launcher background changes.](https://github.com/Dildz/SPT-Fika-modded--Docker-Guide)
 
 ## Credits
 
-Thanks to everyone who contributed somehow or helped others in the comments.
+Thanks to @MonstraG and @lommy7 for helping others in the comments and providing fixes.
 
 [Special thanks to k2rlxyz for making the original Dockerfile.](https://hub.docker.com/r/k2rlxyz/fika) It can also be found in the [Discord](https://discord.gg/project-fika).
