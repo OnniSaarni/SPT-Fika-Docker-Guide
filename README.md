@@ -1,5 +1,5 @@
 # Setting up Fika SPT server with docker for Ubuntu/Debian/Raspberry Pi
-Last updated: 05/09/24
+Last updated: 06/09/24
 
 **Make sure your computer is 64-bit! Arm64 works too!**
 
@@ -421,6 +421,7 @@ It's not necessary but it's a plus. I'm not going to go into it in depth but if 
 
 ## Credits
 
-Thanks to @MonstraG and @lommy7 for helping others in the comments and providing fixes.
+Thanks to everyone who contributed for helping others in the comments and providing fixes.
+Thanks to @Dildz for creating a more in-depth guide and improving this guide!
 
 [Special thanks to k2rlxyz for making the original Dockerfile.](https://hub.docker.com/r/k2rlxyz/fika) It can also be found in the [Discord](https://discord.gg/project-fika).
