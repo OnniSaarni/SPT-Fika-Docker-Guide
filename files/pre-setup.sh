@@ -6,7 +6,7 @@
 ## 3. Copies the required files to the container's "files" directory based on the choice.
 ## 4. Builds the Docker image using the docker-compose build command, or manually using Docker build.
 
-# Using Docker Compose (pre-built image) option means waiting for the image to be updated before rebuilding the container for new versions but is easier to set up.
+# Using Docker Compose (pre-built image) option means waiting for the image to be updated before rebuilding the container for new versions but benefits from docker compose features.
 
 # Using Docker build (build from Dockerfile) means building the image manually by editing the FIKA & SPT version tags in the Dockerfile and re-building the image.
 
