@@ -40,6 +40,7 @@ This guide is for ubuntu but you can find guides for other operating systems/dis
 Here is a summary of the install commands from the guide:
 
 Step 1: Update the Package Index and Install Prerequisites
+
 ```
 sudo apt-get update
 sudo apt-get install \
@@ -51,11 +52,13 @@ sudo apt-get install \
 ```
 
 Step 2: Add Docker’s Official GPG Key
+
 ```
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
 ```
 
 Step 3: Set Up the Stable Repository
+
 ```
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] \
 https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | \
@@ -63,16 +66,19 @@ sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 ```
 
 Step 4: Update the Package Index Again
+
 ```
 sudo apt-get update
 ```
 
 Step 5: Install latest Docker Engine
+
 ```
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 ```
 
 Step 6: Enable and Start Docker
+
 ```
 sudo systemctl enable docker
 ```
@@ -81,6 +87,7 @@ sudo systemctl start docker
 ```
 
 Step 5: Add user to the docker group & activate the changes
+
 ```
 sudo usermod -aG docker $USER
 ```
@@ -199,6 +206,7 @@ Next we need to delete the container and the image. We can do that by running th
 
 ```
 cd /home/ubuntu/docker/containers/spt-fika/files
+```
 ```
 docker compose down
 ```
