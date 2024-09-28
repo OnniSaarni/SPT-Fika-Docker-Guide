@@ -13,9 +13,6 @@ Last updated: 06/09/24
 
 [Other Possibly Helpful Info](https://github.com/OnniSaarni/SPT-Fika-Docker-Guide#modding-and-other-possibly-helpful-info)
 
-[Automatic Setup Script](https://github.com/OnniSaarni/SPT-Fika-Docker-Guide/tree/main/files/setupScript)
-(Only use if you've already done the setup once before.)
-
 [Casual discussion and questions can go here](https://gist.github.com/OnniSaarni/a3f840cef63335212ae085a3c6c10d5c)
 
 ## Free VPS
