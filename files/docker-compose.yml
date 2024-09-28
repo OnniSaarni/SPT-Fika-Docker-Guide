@@ -1,0 +1,11 @@
+services:
+  fika:
+    image: docker.io/dildz/spt-fika-3.9.8
+    container_name: fika
+    volumes:
+      - /home/ubuntu/docker/containers/spt-fika/server:/opt/server      # Maps the server data directory
+      - /home/ubuntu/docker/logs:/home/ubuntu/docker/logs               # Logs directory
+    ports:
+      - "6969:6969"
+    command: [ "bash", "/opt/init-server.sh" ]
+    restart: unless-stopped

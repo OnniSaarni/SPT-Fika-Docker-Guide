@@ -111,224 +111,41 @@ You can log into the new account by entering this command:
 su - dockercontainers
 ```
 
-## Setting up the directories
+## Setting up the server
 
-After you've got docker installed you can start by creating a new directory for your project and navigate to it in your terminal.
-
-I'm going to go ahead and create a new directory called "containers" and navigate to it.
+After you've got docker installed you can start by downloading the pre-setup.sh file to the root of your home folder.
 
 You can do this with:
 
 ```
-mkdir containers
-cd containers
-```
-
-Now we're going to create new directories for our Fika Dockerfile and Fika SPT server and navigate to the Dockerfile directory.
-
-You can do this with:
-
-```
-mkdir fika
-mkdir server
-cd fika
-```
-
-The file structure looks like this:
-
-![file structure](images/fileStructure.png)
-
-## Creating the files
-
-Now we're going to create a new file called "Dockerfile" in the fika directory.
-
-**THIS NAME IS CASE SENSITIVE**
-
-You can do this with:
-
-```
-nano Dockerfile
-```
-
-Inside this file we're going to write the following: [(These are from the Fika Discord)](https://discord.com/channels/1202292159366037545/1236681505451933758)
-
-```
-##
-## Dockerfile
-## FIKA LINUX Container
-##
-
-FROM ubuntu:latest AS builder
-ARG FIKA=HEAD^
-ARG FIKA_TAG=[Insert Tag Here]
-ARG SPT=HEAD^
-ARG SPT_TAG=[Insert Tag Here]
-ARG NODE=20.11.1
-
-RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
-WORKDIR /opt
-
-# Install git git-lfs curl
-RUN apt update && apt install -yq git git-lfs curl
-# Install Node Version Manager and NodeJS
-RUN git clone https://github.com/nvm-sh/nvm.git $HOME/.nvm || true
-RUN \. $HOME/.nvm/nvm.sh && nvm install $NODE
-## Clone the SPT repo or continue if it exist
-RUN git clone https://dev.sp-tarkov.com/SPT/Server.git srv || true
-
-## Check out and git-lfs (specific commit --build-arg SPT=xxxx)
-WORKDIR /opt/srv/project
-
-RUN git checkout tags/$SPT_TAG
-RUN git checkout $SPT
-RUN git-lfs pull
-
-## remove the encoding from spt - todo: find a better workaround
-RUN sed -i '/setEncoding/d' /opt/srv/project/src/Program.ts || true
-
-## Install npm dependencies and run build
-RUN \. $HOME/.nvm/nvm.sh && npm install && npm run build:release -- --arch=$([ "$(uname -m)" = "aarch64" ] && echo arm64 || echo x64) --platform=linux
-## Move the built server and clean up the source
-RUN mv build/ /opt/server/
-WORKDIR /opt
-RUN rm -rf srv/
-## Grab FIKA Server Mod or continue if it exist
-RUN git clone https://github.com/project-fika/Fika-Server.git ./server/user/mods/fika-server
-WORKDIR ./server/user/mods/fika-server
-RUN git checkout tags/$FIKA_TAG
-RUN git checkout $FIKA
-RUN \. $HOME/.nvm/nvm.sh && npm install
-RUN rm -rf ../FIKA/.git
-
-FROM ubuntu:latest
-WORKDIR /opt/
-RUN apt update && apt upgrade -yq && apt install -yq dos2unix
-COPY --from=builder /opt/server /opt/srv
-COPY fcpy.sh /opt/fcpy.sh
-# Fix for Windows
-RUN dos2unix /opt/fcpy.sh
-
-# Set permissions
-RUN chmod o+rwx /opt -R
-
-# Exposing ports
-EXPOSE 6969
-EXPOSE 6970
-EXPOSE 6971
-
-# Specify the default command to run when the container starts
-CMD bash ./fcpy.sh
-```
-
-Press **Ctrl + S** to save and after that press **Ctrl + X** to exit.
-
-You can change the Fika and SPT versions If SPT or FIKA gets updated. In the `Dockerfile` you can change `FIKA_TAG` and `SPT_TAG` args to the version you want. E.g. `ARG FIKA_TAG=v2.1.1` and `ARG SPT_TAG=3.8.3`.
-
-![#f03c15](https://placehold.co/15x15/f03c15/ff0000.png) **Warning!** ![#f03c15](https://placehold.co/15x15/f03c15/ff0000.png) Make sure that selected tag versions are compatible. **Please double check the current versions of SPT and Fika!**
-
-And then we will create a new file called "fcpy.sh" in the fika directory. **THIS NAME IS CASE SENSITIVE**
-
-You can do this with:
-
-```
-nano fcpy.sh
-```
-
-Inside this file we're going to write the following: [(These are from the Fika Discord)](https://discord.com/channels/1202292159366037545/1236681505451933758)
-
-```
-# fcpy.sh
-
-#!/bin/bash
-echo "FIKA Docker"
-
-if [ -d "/opt/srv" ]; then
-    start=$(date +%s)
-    echo "Started copying files to your volume/directory.. Please wait."
-    cp -r /opt/srv/* /opt/server/
-    rm -r /opt/srv
-    end=$(date +%s)
-    
-    echo "Files copied to your machine in $(($end-$start)) seconds."
-    echo "Starting the server to generate all the required files"
-    cd /opt/server
-    chown $(id -u):$(id -g) ./* -Rf
-    if [ -f /opt/server/SPT_Data/Server/configs/http.json ]; then
-    	sed -i 's/127.0.0.1/0.0.0.0/g' /opt/server/SPT_Data/Server/configs/http.json
-	NODE_CHANNEL_FD= timeout --preserve-status 40s ./SPT.Server.exe </dev/null >/dev/null 2>&1
-    else
-	sed -i 's/127.0.0.1/0.0.0.0/g' /opt/server/Aki_Data/Server/configs/http.json
-	NODE_CHANNEL_FD= timeout --preserve-status 40s ./Aki.Server.exe </dev/null >/dev/null 2>&1
-    fi
-    echo "Follow the instructions to proceed!"
-fi
-
-if [ -e "/opt/server/delete_me" ]; then
-    echo "Error: Safety file found. Exiting."
-    echo "Please follow the instructions."
-     sleep 30
-    exit 1
-fi
-
-cd /opt/server
-
-if [ -f ./SPT.Server.exe ]; then
-   ./SPT.Server.exe
-else
-   ./Aki.Server.exe
-fi
-echo "Exiting."
-exit 0
-```
-
-## Setting up the Docker container
-
-After the files have been created we can start the setup.
-
-First off we're going to run this in the "fika" directory:
-
-```
-docker build --no-cache --label FIKA -t fika .
-```
-
-It will take a while but once it is finished we are going to move on to the next command. 
-
-**In the next command need to change your "PATHTOYOURSERVERFILE" to your server directory path.**
-To do this you can navigate to the server directory we created earlier. If you are still in the "fika" directory (you can confirm this by running `pwd` in your current directory), you can navigate to the "server" directory by running:
-
-```
-cd ..
-cd server
-```
-
-Then by running `pwd` you can get the path to your server file. Copy this value and replace it with "**PATHTOYOURSERVERFILE**".
-
-```
-docker run --pull=never -v PATHTOYOURSERVERFILE:/opt/server -p 6969:6969 -p 6970:6970 -p 6971:6971 -p 6972:6972 -it --name fika --log-opt max-size=10m --log-opt max-file=3 fika
-```
-
-## Starting the container
-
-After the docker run command we are going to start the container:
-
-```
-docker start fika
+cd ~
 ```
 ```
-docker update --restart unless-stopped fika
+wget [download link for the pre-setup.sh file]
 ```
 
-After starting the container you can see the logs of it with:
+**BEFORE RUNNING** - If you have existing docker container & github repository locations - edit pre-setup.sh and adjust the directory paths to suit your needs.
+
+Now we're going to make the script executable:
+
 ```
-docker logs fika -f
+chmod +x pre-setup.sh
 ```
+
+Now we're going to run pre-setup.sh:
+
+```
+wget [download link for the pre-setup.sh file]
+```
+
+Once the server is ready - you can exit the logs but pressing **Ctrl + C**
 
 ## Helpful Docker commands
 
 To see the logs of the container:
 
 ```
-docker logs fika -f
+docker logs -f fika
 ```
 
 You can use **Ctrl + C** to exit the logs.
@@ -353,52 +170,99 @@ First off you will have to stop the server with:
 docker stop fika
 ```
 
-[How to find out your server directory path](https://gist.github.com/OnniSaarni/a3f840cef63335212ae085a3c6c10d5c#setting-up-the-docker-container)
+It is recommended to backup profiles in your server/user/profiles directory. 
 
-It is recommended to backup your profiles in your server/user/profiles directory. You can copy them to your home directory with this command (assuming you made an account earlier):
+The server path is defined in the pre-setup script and if not edited - should be in ($HOME/docker/containers/spt-fika/server/user/profiles)
+
+You can copy them with this command:
 
 ```
-cp -r PATHTOYOURSERVERFILE/server/user/profiles /home/dockercontainers/profilesBackup
+cp -r $HOME/docker/containers/spt-fika/server/user/profiles $HOME/docker/containers/backups/fika/profiles
 ```
 
-The profile files will be copied over to your home directory. If you haven't made a separate account you should change the command.
+If you have any mods installed - you can use the following commands to backup server & client mods:
+
+```
+cp -r $HOME/docker/containers/spt-fika/server/user/mods $HOME/docker/containers/backups/fika/mods
+```
+```
+cp -r $HOME/docker/containers/spt-fika/server/BepInEx $HOME/docker/containers/backups/fika/BepInEx
+```
+
+Since we're updating FIKA/SPT - we need to remove the old FIKA mod from the backup:
+
+```
+rm -rf $HOME/docker/containers/backups/fika/mods/fika-server
+```
 
 Next we need to delete the container and the image. We can do that by running these commands:
 
 ```
-docker rm fika
+cd /home/ubuntu/docker/containers/spt-fika/files
 ```
-```
-docker rmi FIKA
-```
-```
-docker image prune
+docker compose down
 ```
 
-After that we need to rebuild the container from within the fika directory:
+Confirm the current image version:
 
 ```
-docker build --no-cache --label FIKA -t fika .
+docker images
 ```
 
-And then we can start it back up with: [REMEMBER TO CHANGE PATHTOYOURSERVERFILE](https://gist.github.com/OnniSaarni/a3f840cef63335212ae085a3c6c10d5c#setting-up-the-docker-container)
+Replace the current version for the dildz/spt-fika-X.X.X image in the next command:
+
 ```
-cd ..
-```
-```
-cd server
+docker rmi dildz/spt-fika-CURRENT_VERSION
 ```
 ```
-docker run --pull=never -v PATHTOYOURSERVERFILE:/opt/server -p 6969:6969 -p 6970:6970 -p 6971:6971 -p 6972:6972 -it --name fika --log-opt max-size=10m --log-opt max-file=3 fika
+docker builder prune
 ```
+
+Now we need the latest spt-fika image.
+
+[Navigate to DockerHub to copy the latest spt-fika image pull command](https://hub.docker.com/u/dildz)
+
+Pull the new spt-fika image by pasting the pull command:
+
 ```
-docker start fika
+docker pull dildz/spt-fika-NEW_VERSION
 ```
+
+After that we can rebuild the container:
+
 ```
-docker update --restart unless-stopped fika
+docker compose up -d && docker compose logs -f fika
 ```
 
 Now your server is updated.
+
+You can use **Ctrl + C** to exit the logs.
+
+To restore any backed up profiles & mods we can run the following commands:
+
+```
+docker stop spt-fika
+```
+```
+sudo chown -R ubuntu:ubuntu $HOME/docker/containers/spt-fika/server
+```
+```
+cp -r $HOME/docker/containers/backups/fika/profiles $HOME/docker/containers/spt-fika/server/user/
+```
+```
+cp -r $HOME/docker/containers/backups/fika/mods $HOME/docker/containers/spt-fika/server/user/
+```
+```
+cp -r $HOME/docker/containers/backups/fika/BepInEx $HOME/docker/containers/spt-fika/server/
+```
+
+With backups restored you can now start the fika container back up:
+
+```
+docker start fika && docker compose -f fika
+```
+
+You can use **Ctrl + C** to exit the logs.
 
 [To update your client you can follow the instructions here.](https://dev.sp-tarkov.com/SPT/Stable-releases/releases) [You will also need to download the newest Fika plugin from here.](https://github.com/project-fika/Fika-Plugin/releases)
 

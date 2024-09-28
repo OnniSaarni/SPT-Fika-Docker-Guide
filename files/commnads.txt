@@ -1,0 +1,32 @@
+# Download the pre-setup.sh from the github repo releases to the home directory
+wget [download link for the pre-setup.sh file]
+
+# Pull the spt-fika image (copied from https://hub.docker.com/u/dildz)
+docker pull dildz/spt-fika-3.9.8
+
+# Up the fika container (run in the files directory)
+docker compose up -d && docker compose logs -f fika
+
+# Down the fika container (run in the files directory)
+docker compose down
+
+# Stop the fika container
+docker compose stop fika
+
+# Start the fika container
+docker compose start fika
+
+# Check the logs of the fika container
+docker compose logs -f fika
+
+# Check the image version 
+docker images
+
+Remove the spt-fika image
+docker rmi dildz/spt-fika-X.X.X
+
+# Build prune
+docker builder prune
+
+# Remove the server folder contents
+sudo rm -rf /home/ubuntu/docker/containers/spt-fika/server/*
