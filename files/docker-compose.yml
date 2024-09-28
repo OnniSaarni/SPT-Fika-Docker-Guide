@@ -1,10 +1,12 @@
 services:
   fika:
-    image: docker.io/dildz/spt-fika-3.9.8
+    image: docker.io/dildz/spt-fika-3.9.8:latest
     container_name: fika
+    environment:
+      - HOST_USER=${USER}   # Passes the host's username into the container
     volumes:
-      - /home/ubuntu/docker/containers/spt-fika/server:/opt/server      # Maps the server data directory
-      - /home/ubuntu/docker/logs:/home/ubuntu/docker/logs               # Logs directory
+      - /home/${USER}/docker/containers/spt-fika/server:/opt/server   # Dynamic user directory
+      - /home/${USER}/docker/logs:/home/${USER}/docker/logs           # Dynamic user log directory
     ports:
       - "6969:6969"
     command: [ "bash", "/opt/init-server.sh" ]

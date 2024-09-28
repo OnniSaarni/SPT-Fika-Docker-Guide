@@ -10,20 +10,23 @@
 
 echo "Running pre-setup.sh ..."
 
+# Get the current username dynamically
+USER_NAME=$(whoami)
+
 # Set up directories (modify paths if you have an existing docker folder structure)
 echo "Creating container directories..."
-mkdir -p /home/ubuntu/docker/containers/spt-fika/files
-mkdir -p /home/ubuntu/docker/containers/spt-fika/server
+mkdir -p /home/$USER_NAME/docker/containers/spt-fika/files
+mkdir -p /home/$USER_NAME/docker/containers/spt-fika/server
 
 # Define the container's file path
-export FIKA_FILES=/home/ubuntu/docker/containers/spt-fika/files
+export FIKA_FILES=/home/$USER_NAME/docker/containers/spt-fika/files
 
 # Create a github-repos directory if it doesn't exist
 echo "Creating GitHub repository directory..."
-mkdir -p /home/ubuntu/github-repos
+mkdir -p /home/$USER_NAME/github-repos
 
 # Define the repository path
-REPO_DIR="/home/ubuntu/github-repos/SPT-Fika-Docker-Guide"
+REPO_DIR="/home/$USER_NAME/github-repos/SPT-Fika-Docker-Guide"
 
 # Check if the repository already exists
 if [ -d "$REPO_DIR" ]; then
@@ -31,13 +34,17 @@ if [ -d "$REPO_DIR" ]; then
 else
     # Clone the SPT-Fika-Docker-Guide repository
     echo "Cloning the SPT-Fika-Docker-Guide repository..."
-    cd /home/ubuntu/github-repos
+    cd /home/$USER_NAME/github-repos
     git clone https://github.com/OnniSaarni/SPT-Fika-Docker-Guide
 fi
 
 # Copy the Docker compose file to the "files" directory
 echo "Copying docker-compose.yml to the files directory..."
-cp /home/ubuntu/github-repos/SPT-Fika-Docker-Guide/files/docker-compose.yml $FIKA_FILES
+cp /home/$USER_NAME/github-repos/SPT-Fika-Docker-Guide/files/docker-compose.yml $FIKA_FILES
+
+# Modify the docker-compose.yml to replace hardcoded paths with dynamic username
+echo "Updating docker-compose.yml with dynamic username..."
+sed -i "s|/home/ubuntu|/home/$USER_NAME|g" $FIKA_FILES/docker-compose.yml
 
 # Navigate to the container's files directory
 cd $FIKA_FILES
@@ -52,7 +59,7 @@ docker compose up -d
 echo "SPT-FIKA server has been started."
 echo "When the server is ready, you can exit the logs by pressing Ctrl+C and follow the next step to run post-setup.sh."
 
-# Wait 5sec before tailing the logs
+# Wait 5 seconds before tailing the logs
 echo "Waiting 5 seconds before tailing logs ..."
 sleep 5
 
