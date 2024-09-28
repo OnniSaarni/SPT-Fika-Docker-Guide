@@ -5,8 +5,8 @@ services:
     environment:
       - HOST_USER=${USER}   # Passes the host's username into the container
     volumes:
-      - /home/${USER}/docker/containers/spt-fika/server:/opt/server   # Dynamic user directory
-      - /home/${USER}/docker/logs:/home/${USER}/docker/logs           # Dynamic user log directory
+      - ${HOME}/docker/containers/spt-fika/server:/opt/server    # Dynamic server directory path
+      - ${HOME}/docker/logs:/home/${USER}/docker/logs            # Dynamic log directory path
     ports:
       - "6969:6969"
     command: [ "bash", "/opt/init-server.sh" ]
