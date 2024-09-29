@@ -99,14 +99,10 @@ elif [ "$OPTION" == "2" ]; then
     # Start the container and set restart policy
     echo "Starting the Docker container..."
     docker start fika
+    echo "Setting the restart policy to unless-stopped..."
     docker update --restart unless-stopped fika
     echo "SPT-FIKA server has been started."
     echo "When the server is ready, you can exit the logs by pressing Ctrl+C."
-
-    # Wait 5 seconds before tailing the logs
-    echo "Waiting 5 seconds before tailing logs ..."
-    sleep 5
-    docker logs -f fika
 
 else
     echo "Invalid option chosen. Please choose either 1 or 2."

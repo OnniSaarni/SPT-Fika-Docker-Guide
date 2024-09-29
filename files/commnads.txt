@@ -29,4 +29,5 @@ docker rmi dildz/spt-fika-X.X.X
 docker builder prune
 
 # Remove the server folder contents
-sudo rm -rf /home/ubuntu/docker/containers/spt-fika/server/*
+sudo rm -rf /home/ubuntu/docker/containers/spt-fika
+sudo rm -rf /home/ubuntu/docker/logs
