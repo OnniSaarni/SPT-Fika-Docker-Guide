@@ -26,7 +26,7 @@ File Explorer: [WinSCP](https://winscp.net/eng/download.php)
 
 All-in-one recommendation: [VSCode](https://code.visualstudio.com/download) with the Remote Explorer extension installed.
 
-**DON"T LOOSE YOUR SSH KEY FILE!!!** Without this you won't be able to connect to your Oracle server - keep it somewhere **SAFE**
+**DON'T LOOSE YOUR SSH KEY FILE!!!** Without this you won't be able to connect to your Oracle server - keep it somewhere **SAFE**
 
 ## Installing Docker
 
@@ -71,7 +71,7 @@ sudo apt-get update
 Step 5: Install latest Docker Engine
 
 ```
-sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose docker-compose-plugin
 ```
 
 Step 6: Enable and Start Docker
@@ -83,7 +83,7 @@ sudo systemctl enable docker
 sudo systemctl start docker
 ```
 
-Step 5: Add user to the docker group & activate the changes
+Step 7: Add user to the docker group & activate the changes
 
 ```
 sudo usermod -aG docker $USER
@@ -102,7 +102,7 @@ For better security, it's recommended to set up a separate user for Docker conta
 sudo adduser dockercontainers
 ```
 
-To be able to use docker with this user add them to the docker group
+To be able to use docker with this user, add them to the docker group.
 
 ```
 sudo groupadd docker
