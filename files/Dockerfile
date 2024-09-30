@@ -6,7 +6,7 @@
 # Define a build stage to handle dependencies and building
 FROM ubuntu:latest AS builder
 
-# Define build arguments to accept values from docker-compose.yml
+# Define build arguments
 ARG FIKA=HEAD^
 ARG FIKA_TAG=v2.2.8
 ARG SPT=HEAD^

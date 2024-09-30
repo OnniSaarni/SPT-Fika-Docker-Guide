@@ -300,7 +300,7 @@ docker image prune
 Now that the outdated FIKA container & image has been removed - edit the version tags to the latest FIKA & SPT versions in the Dockerfile and save.
 
 ```
-# Define build arguments to accept values from docker-compose.yml
+# Define build arguments
 ARG FIKA=HEAD^
 ARG FIKA_TAG=v2.2.8     <<CHANGE TO NEW VERSION
 ARG SPT=HEAD^
