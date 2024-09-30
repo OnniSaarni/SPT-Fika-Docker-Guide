@@ -117,7 +117,7 @@ su - dockercontainers
 
 ## Setting up the server
 
-After you've got docker installed you can start by downloading the pre-setup.sh file to the root of your home folder.
+After you've got docker installed you can start by downloading the pre-setup.sh script to the **root of your home folder** e.g: /home/YOURUSERNAME/
 
 You can do this with:
 
@@ -128,7 +128,29 @@ cd ~
 wget [download link for the pre-setup.sh file]
 ```
 
-**BEFORE RUNNING** - If you have existing docker container & github repository locations - edit pre-setup.sh and adjust the directory paths to suit your needs.
+**BEFORE RUNNING PRE-SETUP**
+
+This guide assumes that you would be starting on a "fresh" ARM VPS instance. If this is the case you can use either Option 1 or Option 2.
+
+If you already have a VPS instance with existing folder structures for Docker & GitHub repositories, then **ONLY use Option 2 & edit the pre-setup.sh, Dockerfile & init-server.sh files to suit your environment**.
+
+This script does several things depending on the user's choice:
+- Option 1 will use a pre-built image and docker compose.
+- Option 2 will use a Docker file & build/run commands.
+
+When run, it will perform the following actions:
+- Create the necessary directories for the SPT-FIKA Docker container.
+- Clone the SPT-Fika-Docker-Guide repository.
+- Copy the required files to the container's 'files' directory based on the choice.
+- Create the FIKA server based on the choice.
+
+How these methods affect updating the server:
+- Using Docker Compose (option 1) means waiting for the image to be updated on DockerHub before rebuilding the container for new versions but benefits from docker compose features and is much faster to setup. [A Watchtower container](https://containrrr.dev/watchtower/) could be used to automate this process but requires testing.
+- Using Docker build (option 2) means rebuilding the container by editing the FIKA & SPT version tags in the Dockerfile and build/run commands. This option is slower but allows for updating the container image without waiting for DockerHub updates.
+
+[A good explainer of the differences between Docker build & Docker Compose can be found here.](https://cloudinfrastructureservices.co.uk/dockerfile-vs-docker-compose-whats-the-difference/)
+
+# Running the setup script
 
 Now we're going to make the script executable:
 
@@ -139,8 +161,10 @@ chmod +x pre-setup.sh
 Now we're going to run pre-setup.sh:
 
 ```
-wget [download link for the pre-setup.sh file]
+./pre-setup.sh
 ```
+
+Select setup option 1 or 2 depending on your needs 
 
 Once the server is ready - you can exit the logs but pressing **Ctrl + C**
 
@@ -166,6 +190,13 @@ To restart the container:
 docker restart fika
 ```
 
+Taking ownership of FIKA related files (edit paths if needed):
+
+```
+sudo chown -R $(whoami):$(whoami) $HOME/docker/containers/spt-fika/server
+sudo chown -R $(whoami):$(whoami) $HOME/docker/logs
+```
+
 ## Updating to newer versions
 
 First off you will have to stop the server with:
@@ -178,7 +209,7 @@ It is recommended to backup profiles in your server/user/profiles directory.
 
 The server path is defined in the pre-setup script and if not edited - should be in ($HOME/docker/containers/spt-fika/server/user/profiles)
 
-You can copy them with this command:
+You can backup profiles with this command:
 
 ```
 cp -r $HOME/docker/containers/spt-fika/server/user/profiles $HOME/docker/containers/backups/fika/profiles
@@ -193,7 +224,7 @@ cp -r $HOME/docker/containers/spt-fika/server/user/mods $HOME/docker/containers/
 cp -r $HOME/docker/containers/spt-fika/server/BepInEx $HOME/docker/containers/backups/fika/BepInEx
 ```
 
-Since we're updating FIKA/SPT - we need to remove the old FIKA mod from the backup:
+Remove the old FIKA mod version from the backup:
 
 ```
 rm -rf $HOME/docker/containers/backups/fika/mods/fika-server
@@ -201,8 +232,10 @@ rm -rf $HOME/docker/containers/backups/fika/mods/fika-server
 
 Next we need to delete the container and the image. We can do that by running these commands:
 
+If option 1 was used (Docker compose):
+
 ```
-cd /home/ubuntu/docker/containers/spt-fika/files
+cd $HOME/docker/containers/spt-fika/files
 ```
 ```
 docker compose down
@@ -219,13 +252,16 @@ Replace the current version for the dildz/spt-fika-X.X.X image in the next comma
 ```
 docker rmi dildz/spt-fika-CURRENT_VERSION
 ```
+
+Remove any old build files:
+
 ```
 docker builder prune
 ```
 
 Now we need the latest spt-fika image.
 
-[Navigate to DockerHub to copy the latest spt-fika image pull command](https://hub.docker.com/u/dildz)
+[Navigate to DockerHub & copy the latest spt-fika image pull command](https://hub.docker.com/u/dildz)
 
 Pull the new spt-fika image by pasting the pull command:
 
@@ -241,6 +277,71 @@ docker compose up -d && docker compose logs -f fika
 
 Now your server is updated.
 
+If option 2 was used (Docker build):
+
+Stop the server with:
+
+```
+docker stop fika
+```
+
+Next we need to delete the container and the image. We can do that by running these commands:
+
+```
+docker rm fika
+```
+```
+docker rmi FIKA
+```
+```
+docker image prune
+```
+
+Now that the outdated FIKA container & image has been removed - edit the version tags to the latest FIKA & SPT versions in the Dockerfile and save.
+
+```
+# Define build arguments to accept values from docker-compose.yml
+ARG FIKA=HEAD^
+ARG FIKA_TAG=v2.2.8     <<CHANGE TO NEW VERSION
+ARG SPT=HEAD^
+ARG SPT_TAG=3.9.8       <<CHANGE TO NEW VERSION
+ARG NODE=20.11.1
+```
+
+After that we need to rebuild the container from within the fika 'files' directory (edit path if needed):
+
+```
+cd $HOME/docker/containers/spt-fika/files
+```
+
+```
+docker build --no-cache --label FIKA -t fika .
+```
+
+Then we can start it back up with: [REMEMBER TO CHANGE PATHTOYOURSERVERFILE & PATHTOYOURLOGFILE](https://gist.github.com/OnniSaarni/a3f840cef63335212ae085a3c6c10d5c#setting-up-the-docker-container)
+
+```
+cd ..
+```
+
+```
+cd server
+```
+
+```
+docker run --pull=never -v PATHTOYOURSERVERFILE:/opt/server -p 6969:6969 -d --name fika fika > PATHTOYOURLOGFILE 2>&1
+```
+
+```
+docker start fika
+```
+
+```
+docker update --restart unless-stopped fika
+```
+
+Now your server is updated.
+
 You can use **Ctrl + C** to exit the logs.
 
 To restore any backed up profiles & mods we can run the following commands:
@@ -248,15 +349,22 @@ To restore any backed up profiles & mods we can run the following commands:
 ```
 docker stop spt-fika
 ```
+
+Edit the following paths if needed:
+
 ```
-sudo chown -R ubuntu:ubuntu $HOME/docker/containers/spt-fika/server
+sudo chown -R $(whoami):$(whoami) $HOME/docker/containers/spt-fika/server
+sudo chown -R $(whoami):$(whoami) $HOME/docker/logs
 ```
+
 ```
 cp -r $HOME/docker/containers/backups/fika/profiles $HOME/docker/containers/spt-fika/server/user/
 ```
+
 ```
 cp -r $HOME/docker/containers/backups/fika/mods $HOME/docker/containers/spt-fika/server/user/
 ```
+
 ```
 cp -r $HOME/docker/containers/backups/fika/BepInEx $HOME/docker/containers/spt-fika/server/
 ```
@@ -264,7 +372,7 @@ cp -r $HOME/docker/containers/backups/fika/BepInEx $HOME/docker/containers/spt-f
 With backups restored you can now start the fika container back up:
 
 ```
-docker start fika && docker compose -f fika
+docker start fika && docker logs -f fika
 ```
 
 You can use **Ctrl + C** to exit the logs.
